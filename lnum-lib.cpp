@@ -21,14 +21,14 @@ public:
 	Lnum(const Lnum&);
 
 	Lnum& operator=(const Lnum&);
-	
+
 	bool operator==(const Lnum&) const;
 	bool operator!=(const Lnum&) const;
 	bool operator<(const Lnum&) const;
 	bool operator<=(const Lnum&) const;
 	bool operator>(const Lnum&) const;
 	bool operator>=(const Lnum&) const;
-	
+
 	Lnum operator+(const Lnum&) const;
 	Lnum operator-(const Lnum&) const;
 	Lnum operator-() const;
@@ -37,17 +37,17 @@ public:
 	Lnum operator+=(const Lnum&);
 	Lnum operator-=(const Lnum&);
 	Lnum operator*=(const Lnum&);
-	
-	
+
+
 	Lnum& operator=(const long long&);
-	
+
 	bool operator==(const long long&) const;
 	bool operator!=(const long long&) const;
 	bool operator<(const long long&) const;
 	bool operator<=(const long long&) const;
 	bool operator>(const long long&) const;
 	bool operator>=(const long long&) const;
-	
+
 	Lnum operator+(const long long&) const;
 	Lnum operator-(const long long&) const;
 	Lnum operator*(const long long&) const;
@@ -55,7 +55,7 @@ public:
 	Lnum operator+=(const long long&);
 	Lnum operator-=(const long long&);
 	Lnum operator*=(const long long&);
-	
+
 
 	int getDigit(int) const;
 	int length() const;
@@ -65,7 +65,7 @@ public:
 
 //CONSTRUCTORS
 
-Lnum::Lnum() : 
+Lnum::Lnum() :
 	sign(1), digit(vector<int>(1, 0)) {}
 
 Lnum::Lnum(long long x) {
@@ -76,7 +76,7 @@ Lnum::Lnum(long long x) {
 	else {
 		sign = 1;
 	}
-	
+
 	digit.clear();
 	while(x > 0) {
 		digit.push_back(x % 10);
@@ -91,19 +91,23 @@ Lnum::Lnum(string s) {
 	digit.clear();
 	sign = 1;
 	reverse(s.begin(), s.end());
-	if(!s.empty() && s.back() == '-') {
-		sign = -1;
-		s.pop_back();
-	}
+
 	for(auto c : s) {
-		digit.push_back(c - '0');
+		if(isdigit(c)) {
+			digit.push_back(c - '0');
+		}
+		else {
+			if(c == '-') {
+				sign *= -1;
+			}
+		}
 	}
 	normalize();
 }
 
 Lnum::Lnum(vector<int> digit, int sign) :
 		digit(digit), sign(sign) {
-	normalize();		
+	normalize();
 }
 
 
@@ -196,7 +200,7 @@ Lnum Lnum::operator+(const Lnum& x) const {
 		for(int i = 0, carry = 0; i < c.size(); i++) {
 			carry += getDigit(i) + x.getDigit(i);
 			c[i] = carry % 10;
-			carry /= 10; 
+			carry /= 10;
 		}
 		return Lnum(c, sign);
 	}
@@ -205,7 +209,7 @@ Lnum Lnum::operator+(const Lnum& x) const {
 			return *this - (-x);
 		}
 		else {
-			return -(x - (-*this));
+			return (x - (-*this));
 		}
 	}
 }
@@ -228,7 +232,7 @@ Lnum Lnum::operator-(const Lnum& x) const {
 					c[i] += getDigit(i) - x.getDigit(i);
 					if(c[i] < 0) {
 						c[i] += 10;
-						c[i + 1]++;
+						c[i + 1]--;
 					}
 				}
 				return Lnum(c, 1);
@@ -327,7 +331,7 @@ int Lnum::getDigit(int pos) const {
 }
 
 int Lnum::length() const {
-	return digit.size() == 1 && digit[0] == 0 ? 1 : 
+	return digit.size() == 1 && digit[0] == 0 ? 1 :
 		digit.size() + (sign == -1);
 }
 
@@ -347,8 +351,7 @@ void Lnum::normalize() {
 		sign = 1;
 		digit.push_back(0);
 	}
-	if(*this == Lnum(0)) {
+	if(digit.size() == 1 && digit[0] == 0) {
 		sign = 1;
 	}
 }
-
