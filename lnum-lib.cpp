@@ -144,7 +144,8 @@ ostream& operator<<(ostream& out, const Lnum& x) {
 //OPERATORS
 
 Lnum& Lnum::operator=(const Lnum& x){
-	digit = x.digit;
+	digit = x.getDigits();
+	sign = x.getSign();
 	return *this;
 }
 
@@ -188,7 +189,7 @@ bool Lnum::operator>=(const Lnum& x) const {
 	return !(*this < x);
 }
 
-////ARYTHMETIC
+////ARITHMETIC
 
 Lnum Lnum::operator-() const {
 	return Lnum(digit, -sign);
