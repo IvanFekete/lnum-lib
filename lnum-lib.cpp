@@ -15,18 +15,15 @@ class Lnum {
 	void normalize();
 public:
 	Lnum();
-	Lnum(int);
+	Lnum(long long);
 	Lnum(string);
 	Lnum(vector<int>, int);
 	Lnum(const Lnum&);
 
 	Lnum& operator=(const Lnum&);
-	Lnum& operator=(const int&);
 	
 	bool operator==(const Lnum&) const;
 	bool operator!=(const Lnum&) const;
-	bool operator==(const int&) const;
-	bool operator!=(const int&) const;
 	bool operator<(const Lnum&) const;
 	bool operator<=(const Lnum&) const;
 	bool operator>(const Lnum&) const;
@@ -40,6 +37,25 @@ public:
 	Lnum operator+=(const Lnum&);
 	Lnum operator-=(const Lnum&);
 	Lnum operator*=(const Lnum&);
+	
+	
+	Lnum& operator=(const long long&);
+	
+	bool operator==(const long long&) const;
+	bool operator!=(const long long&) const;
+	bool operator<(const long long&) const;
+	bool operator<=(const long long&) const;
+	bool operator>(const long long&) const;
+	bool operator>=(const long long&) const;
+	
+	Lnum operator+(const long long&) const;
+	Lnum operator-(const long long&) const;
+	Lnum operator*(const long long&) const;
+
+	Lnum operator+=(const long long&);
+	Lnum operator-=(const long long&);
+	Lnum operator*=(const long long&);
+	
 
 	int getDigit(int) const;
 	int length() const;
@@ -52,7 +68,7 @@ public:
 Lnum::Lnum() : 
 	sign(1), digit(vector<int>(1, 0)) {}
 
-Lnum::Lnum(int x) {
+Lnum::Lnum(long long x) {
 	if(x < 0) {
 		sign = -1;
 		x *= -1;
@@ -73,7 +89,7 @@ Lnum::Lnum(int x) {
 
 Lnum::Lnum(string s) {
 	digit.clear();
-	sign = -1;
+	sign = 1;
 	reverse(s.begin(), s.end());
 	if(!s.empty() && s.back() == '-') {
 		sign = -1;
@@ -128,24 +144,12 @@ Lnum& Lnum::operator=(const Lnum& x){
 	return *this;
 }
 
-Lnum& Lnum::operator=(const int &x){
-	return (*this = Lnum(x));
-}
-
 bool Lnum::operator==(const Lnum& x) const {
 	return sign == x.getSign() && digit == x.getDigits();
 }
 
 bool Lnum::operator!=(const Lnum& x) const {
 	return !(*this == x);
-}
-
-bool Lnum::operator==(const int& x) const {
-	return *this == Lnum(x);
-}
-
-bool Lnum::operator!=(const int& x) const {
-	return *this != Lnum(x);
 }
 
 bool Lnum::operator<(const Lnum& x) const {
@@ -259,6 +263,63 @@ Lnum Lnum::operator*=(const Lnum& x) {
 }
 
 
+////CLONES FOR INT
+
+Lnum& Lnum::operator=(const long long &x){
+	return (*this = Lnum(x));
+}
+
+
+bool Lnum::operator==(const long long& x) const {
+	return *this == Lnum(x);
+}
+
+bool Lnum::operator!=(const long long& x) const {
+	return *this != Lnum(x);
+}
+
+bool Lnum::operator<(const long long& x) const {
+	return *this < Lnum(x);
+}
+
+bool Lnum::operator<=(const long long& x) const {
+	return *this <= Lnum(x);
+}
+
+bool Lnum::operator>(const long long& x) const {
+	return *this > Lnum(x);
+}
+
+bool Lnum::operator>=(const long long& x) const {
+	return *this >= Lnum(x);
+}
+
+
+Lnum Lnum::operator+(const long long& x) const {
+	return *this + Lnum(x);
+}
+
+Lnum Lnum::operator-(const long long& x) const {
+	return *this - Lnum(x);
+}
+
+Lnum Lnum::operator*(const long long& x) const {
+	return *this * Lnum(x);
+}
+
+
+Lnum Lnum::operator+=(const long long& x) {
+	return (*this = *this + x);
+}
+
+Lnum Lnum::operator-=(const long long& x) {
+	return (*this = *this - x);
+}
+
+Lnum Lnum::operator*=(const long long& x) {
+	return (*this = *this * x);
+}
+
 //OTHERS
 
 int Lnum::getDigit(int pos) const {
@@ -290,5 +351,4 @@ void Lnum::normalize() {
 		sign = 1;
 	}
 }
-
 
