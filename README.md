@@ -1,2 +1,2 @@
 # lnum-lib
-A library for doing arithmetical operations with long numbers in C++
+A library for doing arithmetic operations with long numbers in C++
