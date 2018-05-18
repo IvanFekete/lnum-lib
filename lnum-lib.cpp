@@ -318,7 +318,7 @@ pair<Lnum, Lnum> Lnum::divmod(const Lnum& x) const {
 	Lnum carry = 0;
 
 	for(int i = 0; i < a.size(); i++) {
-		carry *= 10;
+		carry *= base;
 		carry += a[i];
 
 		int l = 0, r = base - 1;
