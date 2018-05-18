@@ -34,10 +34,14 @@ public:
 	Lnum operator-(const Lnum&) const;
 	Lnum operator-() const;
 	Lnum operator*(const Lnum&) const;
+	Lnum operator/(const Lnum&) const;
+	Lnum operator%(const Lnum&) const;
 
 	Lnum operator+=(const Lnum&);
 	Lnum operator-=(const Lnum&);
 	Lnum operator*=(const Lnum&);
+	Lnum operator/=(const Lnum&);
+	Lnum operator%=(const Lnum&);
 
 
 	Lnum& operator=(const long long&);
@@ -52,17 +56,26 @@ public:
 	Lnum operator+(const long long&) const;
 	Lnum operator-(const long long&) const;
 	Lnum operator*(const long long&) const;
+	Lnum operator/(const long long&) const;
+	Lnum operator%(const long long&) const;
 
 	Lnum operator+=(const long long&);
 	Lnum operator-=(const long long&);
 	Lnum operator*=(const long long&);
+	Lnum operator/=(const long long&);
+	Lnum operator%=(const long long&);
 
+	pair<Lnum, Lnum> divmod(const Lnum&) const;
 
 	int getDigit(int) const;
 	int length() const;
 	int getSign() const;
 	vector<int> getDigits() const;
 };
+
+Lnum lPow(Lnum a, long long b);
+Lnum lPow(long long a, long long b);
+
 
 //CONSTRUCTORS
 
@@ -289,6 +302,43 @@ Lnum Lnum::operator*(const Lnum& x) const {
 	return Lnum(c, sign * x.getSign());
 }
 
+Lnum Lnum::operator/(const Lnum& x) const {
+	return divmod(x).first;
+}
+Lnum Lnum::operator%(const Lnum& x) const {
+	return divmod(x).second;
+}
+
+pair<Lnum, Lnum> Lnum::divmod(const Lnum& x) const {
+	vector<int> a = digit;
+	reverse(a.begin(), a.end());
+	Lnum y(x.getDigits(), 1);
+	vector<int> c;
+	Lnum carry = 0;
+
+	for(int i = 0; i < a.size(); i++) {
+		carry *= 10;
+		carry += a[i];
+
+		int l = 0, r = base - 1;
+		while(l < r) {
+			int m = (l + r + 1) / 2;
+			if(y * m <= carry) {
+				l = m;
+			}
+			else {
+				r = m - 1;
+			}
+		}
+		c.push_back(l);
+		carry -= y * l;
+	}
+
+	reverse(c.begin(), c.end());
+
+	return make_pair(Lnum(c, sign * x.getSign()), carry * (sign * x.getSign()));
+}
+
 Lnum Lnum::operator+=(const Lnum& x) {
 	return (*this = *this + x);
 }
@@ -299,6 +349,14 @@ Lnum Lnum::operator-=(const Lnum& x) {
 
 Lnum Lnum::operator*=(const Lnum& x) {
 	return (*this = *this * x);
+}
+
+Lnum Lnum::operator/=(const Lnum& x) {
+	return (*this = *this / x);
+}
+
+Lnum Lnum::operator%=(const Lnum& x) {
+	return (*this = *this % x);
 }
 
 
@@ -346,6 +404,14 @@ Lnum Lnum::operator*(const long long& x) const {
 	return *this * Lnum(x);
 }
 
+Lnum Lnum::operator/(const long long& x) const {
+	return *this / Lnum(x);
+}
+
+Lnum Lnum::operator%(const long long& x) const {
+	return *this % Lnum(x);
+}
+
 
 Lnum Lnum::operator+=(const long long& x) {
 	return (*this = *this + x);
@@ -357,6 +423,14 @@ Lnum Lnum::operator-=(const long long& x) {
 
 Lnum Lnum::operator*=(const long long& x) {
 	return (*this = *this * x);
+}
+
+Lnum Lnum::operator/=(const long long& x) {
+	return (*this = *this / x);
+}
+
+Lnum Lnum::operator%=(const long long& x) {
+	return (*this = *this % x);
 }
 
 //OTHERS
