@@ -280,7 +280,7 @@ Lnum Lnum::operator-(const Lnum& x) const {
 Lnum Lnum::operator*(const Lnum& x) const {
 	vector<int> c(length() + x.length() + 10, 0);
 	for(int i = 0, carry = 0; i < int(digit.size()); i++) {
-		for(int j = 0; i + j < c.size() || carry; j++) {
+		for(int j = 0; i + j < int(c.size()) || carry > 0; j++) {
 			long long cur = c[i + j] + getDigit(i) * 1ll * x.getDigit(j) + carry;
 			carry = cur / base;
 			c[i + j] = cur % base;
@@ -389,4 +389,18 @@ void Lnum::normalize() {
 	if(digit.size() == 1 && digit[0] == 0) {
 		sign = 1;
 	}
+}
+
+Lnum lPow(Lnum a, long long b) {
+	Lnum res = 1;
+	while(b > 0) {
+		if(b % 2) res *= a;
+		a *= a;
+		b /= 2;
+	}
+	return res;
+}
+
+Lnum lPow(long long a, long long b) {
+	return lPow(Lnum(a), b);
 }
