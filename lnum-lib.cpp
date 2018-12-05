@@ -72,6 +72,7 @@ public:
 	int length() const;
 	int getSign() const;
 	vector<int> getDigits() const;
+	string toString() const;
 };
 
 Lnum lPow(Lnum a, long long b);
@@ -164,34 +165,7 @@ istream& operator>>(istream& in, Lnum& x) {
 }
 
 ostream& operator<<(ostream& out, const Lnum& x) {
-	if(x == 0) {
-		out << 0;
-	}
-	else {
-		if(x.getSign() == -1) {
-			out << "-";
-		}
-		vector<int> digits = x.getDigits();
-		out << digits.back();
-		digits.pop_back();
-		reverse(digits.begin(), digits.end());
-
-		struct Helper {
-			string addLeadingZeroes(int x) {
-				stringstream stream;
-				stream << x;
-				string s = stream.str();
-				while(int(s.size()) < 9) {
-					s = "0" + s;
-				}
-				return s;
-			}
-		} h;
-
-		for(auto x : digits) {
-			out << h.addLeadingZeroes(x);
-		}
-	}
+	out << x.toString();
 	return out;
 }
 
@@ -466,6 +440,40 @@ void Lnum::normalize() {
 	}
 }
 
+string Lnum::toString() const {
+    if(*this == 0) {
+		return "0";
+	}
+	else {
+        string result = "";
+		if(this->getSign() == -1) {
+			result += "-";
+		}
+		vector<int> digits = this->getDigits();
+		result += char(digits.back() + '0');
+		digits.pop_back();
+		reverse(digits.begin(), digits.end());
+
+		struct Helper {
+			string addLeadingZeroes(int x) {
+				stringstream stream;
+				stream << x;
+				string s = stream.str();
+				while(int(s.size()) < 9) {
+					s = "0" + s;
+				}
+				return s;
+			}
+		} h;
+
+		for(auto x : digits) {
+			result += h.addLeadingZeroes(x);
+		}
+
+		return result;
+	}
+}
+
 Lnum lPow(Lnum a, long long b) {
 	Lnum res = 1;
 	while(b > 0) {
@@ -478,4 +486,7 @@ Lnum lPow(Lnum a, long long b) {
 
 Lnum lPow(long long a, long long b) {
 	return lPow(Lnum(a), b);
+}
+
+
 }
