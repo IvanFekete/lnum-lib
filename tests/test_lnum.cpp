@@ -3,6 +3,7 @@
 
 #include <lnum/lnum.hpp>
 #include <sstream>
+#include <string>
 #include <vector>
 
 using lnum::Lnum;
@@ -156,4 +157,84 @@ TEST_CASE("zero normalization") {
 	CHECK(Lnum(std::vector<int>{0, 0, 0}, -1) == Lnum(0LL));
 	CHECK(Lnum(std::vector<int>{0, 0, 0}, -1).getSign() == 1);
 	CHECK(Lnum(std::vector<int>{5, 0}, 1).toString() == "5"); // trailing zero chunk trimmed
+}
+
+// Everything below deals in numbers with tens to hundreds of digits -- far
+// past what long long (~19 digits), unsigned long long (~20 digits), or
+// __int128 (~38-39 digits) can hold. Expected values were computed
+// independently with Python's arbitrary-precision integers (adjusting its
+// floor-based `//`/`%` to match this library's truncate-toward-zero
+// convention) rather than derived from the implementation under test.
+
+TEST_CASE("arithmetic on numbers far beyond long long / unsigned long long / __int128 range") {
+	// 60-63 digit operands.
+	const Lnum A("123456789012345678901234567890123456789012345678901234567890");
+	const Lnum B("987654321098765432109876543210987654321098765432109876543210");
+
+	CHECK((A + B).toString() == "1111111110111111111011111111101111111110111111111011111111100");
+	CHECK((A - B).toString() == "-864197532086419753208641975320864197532086419753208641975320");
+	CHECK((B - A).toString() == "864197532086419753208641975320864197532086419753208641975320");
+	CHECK((A * B).toString() ==
+		"121932631137021795226185032733866788594511507391563633592367367779295611949397448712086533622"
+		"923332237463801111263526900");
+
+	CHECK((A / B) == Lnum(0LL));
+	CHECK((A % B) == A);
+	CHECK((B / A).toString() == "8");
+	CHECK((B % A).toString() == "9000000000900000000090000000009000000000900000000090");
+
+	CHECK((-A / B) == Lnum(0LL));
+	CHECK((-A % B) == -A);
+	CHECK((A / -B) == Lnum(0LL));
+	CHECK((A % -B) == A);
+	CHECK((-A / -B) == Lnum(0LL));
+	CHECK((-A % -B) == -A);
+
+	CHECK(B > A);
+	CHECK(A < B);
+	CHECK(-A < A);
+	CHECK(-B < -A);
+
+	// quotient*divisor + remainder must reconstruct the dividend at this scale too.
+	auto qr1 = A.divmod(B);
+	CHECK((qr1.first * B + qr1.second) == A);
+	auto qr2 = B.divmod(A);
+	CHECK((qr2.first * A + qr2.second) == B);
+}
+
+TEST_CASE("carry and borrow cascades across many base-1e9 chunks") {
+	const Lnum nines(std::string(40, '9'));
+	CHECK((nines + Lnum(1LL)).toString() == "10000000000000000000000000000000000000000");
+
+	const Lnum onezeros("1" + std::string(40, '0'));
+	CHECK((onezeros - Lnum(1LL)).toString() == "9999999999999999999999999999999999999999");
+}
+
+TEST_CASE("multiplication of two 36-digit numbers") {
+	const Lnum X("123456789123456789123456789123456789");
+	const Lnum Y("987654321987654321987654321987654321");
+	CHECK((X * Y).toString() ==
+		"121932631356500531591068431825636331816338969581771069347203169112635269");
+}
+
+TEST_CASE("lPow producing results well beyond 128 bits") {
+	CHECK(lnum::lPow(Lnum(2LL), 200).toString() ==
+		"1606938044258990275541962092341162602522202993782792835301376");
+	CHECK(lnum::lPow(Lnum(3LL), 150).toString() ==
+		"369988485035126972924700782451696644186473100389722973815184405301748249");
+	CHECK(lnum::lPow(Lnum(10LL), 100).toString() == "1" + std::string(100, '0'));
+}
+
+TEST_CASE("division edge cases at large scale") {
+	const Lnum Z("55555555555555555555555555555555555555");
+	CHECK((Z / Z) == Lnum(1LL));
+	CHECK((Z % Z) == Lnum(0LL));
+
+	// Divisor far larger than the (small, native-range) dividend: quotient 0,
+	// remainder equal to the dividend, sign following the dividend.
+	const Lnum big("999999999999999999999999999999999999999");
+	CHECK((Lnum(42LL) / big) == Lnum(0LL));
+	CHECK((Lnum(42LL) % big) == Lnum(42LL));
+	CHECK((Lnum(-42LL) / big) == Lnum(0LL));
+	CHECK((Lnum(-42LL) % big) == Lnum(-42LL));
 }
