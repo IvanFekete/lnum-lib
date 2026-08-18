@@ -16,6 +16,11 @@ unset(CMAKE_POLICY_VERSION_MINIMUM)
 add_executable(lnum-lib-tests test_lnum.cpp)
 target_link_libraries(lnum-lib-tests PRIVATE lnum::lnum-lib doctest::doctest)
 target_compile_features(lnum-lib-tests PRIVATE cxx_std_11)
+# Only our own sources, not the fetched doctest target, are held to this bar.
+target_compile_options(lnum-lib-tests PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wextra>)
 
 include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)
 doctest_discover_tests(lnum-lib-tests)

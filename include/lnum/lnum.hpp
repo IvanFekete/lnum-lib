@@ -88,7 +88,7 @@ Lnum lPow(long long a, long long b);
 //CONSTRUCTORS
 
 inline Lnum::Lnum() :
-	sign(1), digit(std::vector<int>(1, 0)) {}
+	digit(std::vector<int>(1, 0)), sign(1) {}
 
 inline Lnum::Lnum(long long x) {
 	unsigned long long ux;
@@ -337,7 +337,7 @@ inline std::pair<Lnum, Lnum> Lnum::divmod(const Lnum& x) const {
 	std::vector<int> c;
 	Lnum carry = 0;
 
-	for(int i = 0; i < a.size(); i++) {
+	for(std::size_t i = 0; i < a.size(); i++) {
 		carry *= base;
 		carry += a[i];
 
