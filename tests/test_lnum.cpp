@@ -173,6 +173,24 @@ TEST_CASE("compound assignment") {
 	b %= 3LL; CHECK(b == Lnum(1LL));
 }
 
+TEST_CASE("compound assignment operators return a reference to *this") {
+	static_assert(std::is_same<decltype(std::declval<Lnum&>() += Lnum()), Lnum&>::value,
+		"operator+=(const Lnum&) should return Lnum&");
+	static_assert(std::is_same<decltype(std::declval<Lnum&>() += 0LL), Lnum&>::value,
+		"operator+=(const long long&) should return Lnum&");
+
+	Lnum a(1LL);
+	// Chained compound assignment only type-checks/behaves correctly if
+	// operator+= yields an lvalue reference to the left-hand operand.
+	(a += Lnum(2LL)) += Lnum(3LL);
+	CHECK(a == Lnum(6LL));
+	CHECK(&(a += Lnum(0LL)) == &a);
+
+	Lnum b(1LL);
+	(b += 2LL) += 3LL;
+	CHECK(b == Lnum(6LL));
+}
+
 TEST_CASE("unary minus") {
 	CHECK(-Lnum(5LL) == Lnum(-5LL));
 	CHECK(-Lnum(-5LL) == Lnum(5LL));

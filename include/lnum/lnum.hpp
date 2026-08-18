@@ -44,11 +44,11 @@ public:
 	Lnum operator/(const Lnum&) const;
 	Lnum operator%(const Lnum&) const;
 
-	Lnum operator+=(const Lnum&);
-	Lnum operator-=(const Lnum&);
-	Lnum operator*=(const Lnum&);
-	Lnum operator/=(const Lnum&);
-	Lnum operator%=(const Lnum&);
+	Lnum& operator+=(const Lnum&);
+	Lnum& operator-=(const Lnum&);
+	Lnum& operator*=(const Lnum&);
+	Lnum& operator/=(const Lnum&);
+	Lnum& operator%=(const Lnum&);
 
 
 	Lnum& operator=(const long long&);
@@ -66,11 +66,11 @@ public:
 	Lnum operator/(const long long&) const;
 	Lnum operator%(const long long&) const;
 
-	Lnum operator+=(const long long&);
-	Lnum operator-=(const long long&);
-	Lnum operator*=(const long long&);
-	Lnum operator/=(const long long&);
-	Lnum operator%=(const long long&);
+	Lnum& operator+=(const long long&);
+	Lnum& operator-=(const long long&);
+	Lnum& operator*=(const long long&);
+	Lnum& operator/=(const long long&);
+	Lnum& operator%=(const long long&);
 
 	std::pair<Lnum, Lnum> divmod(const Lnum&) const;
 
@@ -353,23 +353,23 @@ inline std::pair<Lnum, Lnum> Lnum::divmod(const Lnum& x) const {
 	return std::make_pair(Lnum(c, sign * x.getSign()), carry * sign);
 }
 
-inline Lnum Lnum::operator+=(const Lnum& x) {
+inline Lnum& Lnum::operator+=(const Lnum& x) {
 	return (*this = *this + x);
 }
 
-inline Lnum Lnum::operator-=(const Lnum& x) {
+inline Lnum& Lnum::operator-=(const Lnum& x) {
 	return (*this = *this - x);
 }
 
-inline Lnum Lnum::operator*=(const Lnum& x) {
+inline Lnum& Lnum::operator*=(const Lnum& x) {
 	return (*this = *this * x);
 }
 
-inline Lnum Lnum::operator/=(const Lnum& x) {
+inline Lnum& Lnum::operator/=(const Lnum& x) {
 	return (*this = *this / x);
 }
 
-inline Lnum Lnum::operator%=(const Lnum& x) {
+inline Lnum& Lnum::operator%=(const Lnum& x) {
 	return (*this = *this % x);
 }
 
@@ -427,23 +427,23 @@ inline Lnum Lnum::operator%(const long long& x) const {
 }
 
 
-inline Lnum Lnum::operator+=(const long long& x) {
+inline Lnum& Lnum::operator+=(const long long& x) {
 	return (*this = *this + x);
 }
 
-inline Lnum Lnum::operator-=(const long long& x) {
+inline Lnum& Lnum::operator-=(const long long& x) {
 	return (*this = *this - x);
 }
 
-inline Lnum Lnum::operator*=(const long long& x) {
+inline Lnum& Lnum::operator*=(const long long& x) {
 	return (*this = *this * x);
 }
 
-inline Lnum Lnum::operator/=(const long long& x) {
+inline Lnum& Lnum::operator/=(const long long& x) {
 	return (*this = *this / x);
 }
 
-inline Lnum Lnum::operator%=(const long long& x) {
+inline Lnum& Lnum::operator%=(const long long& x) {
 	return (*this = *this % x);
 }
 
