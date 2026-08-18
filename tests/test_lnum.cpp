@@ -49,6 +49,14 @@ TEST_CASE("comparisons") {
 	CHECK(Lnum(-5LL) < Lnum(5LL));
 	CHECK(Lnum(-5LL) < Lnum(-1LL));
 	CHECK(Lnum(0LL) == Lnum(-0LL));
+
+	// Equal-magnitude negative numbers must not compare as "less than"
+	// each other (regression: the sign-flip in operator< used to turn
+	// "not less" into "less" instead of "greater" for equal magnitudes).
+	CHECK_FALSE(Lnum(-1LL) < Lnum(-1LL));
+	CHECK_FALSE(Lnum(-123456789123456789LL) < Lnum(-123456789123456789LL));
+	CHECK(Lnum(-1LL) <= Lnum(-1LL));
+	CHECK(Lnum(-1LL) >= Lnum(-1LL));
 	CHECK(Lnum("123456789123456789") > Lnum("99999999999999999"));
 	CHECK(Lnum(3LL) <= Lnum(3LL));
 	CHECK(Lnum(3LL) >= Lnum(3LL));
@@ -59,6 +67,44 @@ TEST_CASE("comparisons") {
 	CHECK(Lnum(-1LL) <= -1LL);
 	CHECK(Lnum(1LL) >= 1LL);
 	CHECK(Lnum(2LL) > 1LL);
+}
+
+TEST_CASE("long long on the left-hand side of mixed operators") {
+	// `someLnum OP 5LL` goes through a member function (RHS converts
+	// implicitly). `5LL OP someLnum` can't: a member function's implicit
+	// object argument doesn't undergo user-defined conversion. These free
+	// operators fill that gap.
+	CHECK(5LL == Lnum(5LL));
+	CHECK(5LL != Lnum(6LL));
+	CHECK(-1LL < Lnum(0LL));
+	CHECK(-1LL <= Lnum(-1LL));
+	CHECK(1LL >= Lnum(1LL));
+	CHECK(2LL > Lnum(1LL));
+
+	CHECK((5LL + Lnum(3LL)) == Lnum(8LL));
+	CHECK((5LL - Lnum(3LL)) == Lnum(2LL));
+	CHECK((3LL - Lnum(5LL)) == Lnum(-2LL));
+	CHECK((5LL * Lnum(3LL)) == Lnum(15LL));
+	CHECK((7LL / Lnum(2LL)) == Lnum(3LL));
+	CHECK((7LL % Lnum(2LL)) == Lnum(1LL));
+
+	// Cross-check against the Lnum-on-the-left forms, which were already
+	// covered above, to make sure both directions agree.
+	const std::vector<long long> lhs = {0LL, 1LL, -1LL, 7LL, -7LL, 123456789123LL, -123456789123LL};
+	const std::vector<long long> rhs = {2LL, -2LL, 3LL, -3LL, 1000000000LL, -1000000000LL};
+	for(long long a : lhs) {
+		for(long long b : rhs) {
+			CHECK((a + Lnum(b)) == (Lnum(a) + b));
+			CHECK((a - Lnum(b)) == (Lnum(a) - b));
+			CHECK((a * Lnum(b)) == (Lnum(a) * b));
+			CHECK((a / Lnum(b)) == (Lnum(a) / b));
+			CHECK((a % Lnum(b)) == (Lnum(a) % b));
+			CHECK((a < Lnum(b)) == (a < b));
+			CHECK((a <= Lnum(b)) == (a <= b));
+			CHECK((a > Lnum(b)) == (a > b));
+			CHECK((a >= Lnum(b)) == (a >= b));
+		}
+	}
 }
 
 TEST_CASE("addition") {

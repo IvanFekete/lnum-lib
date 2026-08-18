@@ -218,6 +218,13 @@ inline bool Lnum::operator<(const Lnum& x) const {
 	if(sign != x.getSign()) {
 		return sign < x.getSign();
 	}
+	else if(digit == x.getDigits()) {
+		// Equal magnitude, same sign => equal value, never "less than".
+		// (Below, flipping a same-magnitude "not less" into "less" for the
+		// sign==-1 case would otherwise wrongly treat equal negatives as
+		// unequal, e.g. Lnum(-1) < Lnum(-1).)
+		return false;
+	}
 	else {
 		bool condition;
 		if(length() != x.length()) {
@@ -445,6 +452,59 @@ inline Lnum& Lnum::operator/=(const long long& x) {
 
 inline Lnum& Lnum::operator%=(const long long& x) {
 	return (*this = *this % x);
+}
+
+
+////LONG LONG ON THE LEFT-HAND SIDE
+//
+// `someLnum OP 5LL` resolves to the member functions above (the implicit
+// conversion applies to the argument). `5LL OP someLnum` can't go through a
+// member function at all: overload resolution never applies a user-defined
+// conversion to the implicit object argument, so without these free
+// functions `long long` is only ever usable on the right-hand side.
+
+inline bool operator==(const long long& x, const Lnum& y) {
+	return y == x;
+}
+
+inline bool operator!=(const long long& x, const Lnum& y) {
+	return y != x;
+}
+
+inline bool operator<(const long long& x, const Lnum& y) {
+	return y > x;
+}
+
+inline bool operator<=(const long long& x, const Lnum& y) {
+	return y >= x;
+}
+
+inline bool operator>(const long long& x, const Lnum& y) {
+	return y < x;
+}
+
+inline bool operator>=(const long long& x, const Lnum& y) {
+	return y <= x;
+}
+
+inline Lnum operator+(const long long& x, const Lnum& y) {
+	return y + x;
+}
+
+inline Lnum operator-(const long long& x, const Lnum& y) {
+	return Lnum(x) - y;
+}
+
+inline Lnum operator*(const long long& x, const Lnum& y) {
+	return y * x;
+}
+
+inline Lnum operator/(const long long& x, const Lnum& y) {
+	return Lnum(x) / y;
+}
+
+inline Lnum operator%(const long long& x, const Lnum& y) {
+	return Lnum(x) % y;
 }
 
 //OTHERS
