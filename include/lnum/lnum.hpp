@@ -10,6 +10,7 @@
 #include <utility>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 namespace lnum {
 
@@ -288,6 +289,10 @@ inline Lnum Lnum::operator%(const Lnum& x) const {
 }
 
 inline std::pair<Lnum, Lnum> Lnum::divmod(const Lnum& x) const {
+	if(x == 0) {
+		throw std::invalid_argument("lnum::Lnum::divmod: division by zero");
+	}
+
 	std::vector<int> a = digit;
 	reverse(a.begin(), a.end());
 	Lnum y(x.getDigits(), 1);

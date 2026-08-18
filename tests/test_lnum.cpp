@@ -3,6 +3,7 @@
 
 #include <lnum/lnum.hpp>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -96,6 +97,14 @@ TEST_CASE("division and modulo: truncate toward zero, matching built-in / and %"
 			CHECK(qr.second == Lnum(a % b));
 		}
 	}
+}
+
+TEST_CASE("division by zero throws") {
+	CHECK_THROWS_AS(Lnum(5LL) / Lnum(0LL), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum(5LL) % Lnum(0LL), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum(5LL).divmod(Lnum(0LL)), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum(0LL) / Lnum(0LL), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum(-5LL) / Lnum(0LL), std::invalid_argument);
 }
 
 TEST_CASE("compound assignment") {
