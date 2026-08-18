@@ -35,3 +35,14 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/lnum-lib-config.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/lnum-lib-config-version.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/lnum-lib)
+
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    set(LNUM_LIB_IS_TOP_LEVEL ON)
+else()
+    set(LNUM_LIB_IS_TOP_LEVEL OFF)
+endif()
+option(LNUM_LIB_BUILD_TESTS "Build lnum-lib's own test suite" ${LNUM_LIB_IS_TOP_LEVEL})
+if(LNUM_LIB_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()

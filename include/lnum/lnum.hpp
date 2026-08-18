@@ -314,7 +314,7 @@ inline std::pair<Lnum, Lnum> Lnum::divmod(const Lnum& x) const {
 
 	reverse(c.begin(), c.end());
 
-	return std::make_pair(Lnum(c, sign * x.getSign()), carry * (sign * x.getSign()));
+	return std::make_pair(Lnum(c, sign * x.getSign()), carry * sign);
 }
 
 inline Lnum Lnum::operator+=(const Lnum& x) {
@@ -453,7 +453,9 @@ inline std::string Lnum::toString() const {
 			result += "-";
 		}
 		std::vector<int> digits = this->getDigits();
-		result += char(digits.back() + '0');
+		std::stringstream leading;
+		leading << digits.back();
+		result += leading.str();
 		digits.pop_back();
 		reverse(digits.begin(), digits.end());
 
