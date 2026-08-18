@@ -2,24 +2,27 @@
  * 17.05.2018
  */
 
+#pragma once
+
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <utility>
 #include <iostream>
 #include <sstream>
 
-using namespace std;
+namespace lnum {
 
 class Lnum {
 	const int base = 1e9;
-	vector<int> digit;
+	std::vector<int> digit;
 	int sign;
 	void normalize();
 public:
 	Lnum();
 	Lnum(long long);
-	Lnum(string);
-	Lnum(vector<int>, int);
+	Lnum(std::string);
+	Lnum(std::vector<int>, int);
 	Lnum(const Lnum&);
 
 	Lnum& operator=(const Lnum&);
@@ -66,13 +69,13 @@ public:
 	Lnum operator/=(const long long&);
 	Lnum operator%=(const long long&);
 
-	pair<Lnum, Lnum> divmod(const Lnum&) const;
+	std::pair<Lnum, Lnum> divmod(const Lnum&) const;
 
 	int getDigit(int) const;
 	int length() const;
 	int getSign() const;
-	vector<int> getDigits() const;
-	string toString() const;
+	std::vector<int> getDigits() const;
+	std::string toString() const;
 };
 
 Lnum lPow(Lnum a, long long b);
@@ -81,10 +84,10 @@ Lnum lPow(long long a, long long b);
 
 //CONSTRUCTORS
 
-Lnum::Lnum() :
-	sign(1), digit(vector<int>(1, 0)) {}
+inline Lnum::Lnum() :
+	sign(1), digit(std::vector<int>(1, 0)) {}
 
-Lnum::Lnum(long long x) {
+inline Lnum::Lnum(long long x) {
 	if(x < 0) {
 		sign = -1;
 		x *= -1;
@@ -103,7 +106,7 @@ Lnum::Lnum(long long x) {
 	}
 }
 
-Lnum::Lnum(string s) {
+inline Lnum::Lnum(std::string s) {
 	digit.clear();
 	sign = 1;
 	reverse(s.begin(), s.end());
@@ -136,20 +139,20 @@ Lnum::Lnum(string s) {
 	normalize();
 }
 
-Lnum::Lnum(vector<int> digit, int sign) :
+inline Lnum::Lnum(std::vector<int> digit, int sign) :
 		digit(digit), sign(sign) {
 	normalize();
 }
 
 
-Lnum::Lnum(const Lnum& x) : digit(x.getDigits()), sign(x.getSign()) {
+inline Lnum::Lnum(const Lnum& x) : digit(x.getDigits()), sign(x.getSign()) {
 	normalize();
 }
 
 
 //OPERATORS
 
-Lnum& Lnum::operator=(const Lnum& x){
+inline Lnum& Lnum::operator=(const Lnum& x){
 	digit = x.getDigits();
 	sign = x.getSign();
 	return *this;
@@ -157,29 +160,29 @@ Lnum& Lnum::operator=(const Lnum& x){
 
 //// IN|OUT
 
-istream& operator>>(istream& in, Lnum& x) {
-	string s;
+inline std::istream& operator>>(std::istream& in, Lnum& x) {
+	std::string s;
 	in >> s;
 	x = Lnum(s);
 	return in;
 }
 
-ostream& operator<<(ostream& out, const Lnum& x) {
+inline std::ostream& operator<<(std::ostream& out, const Lnum& x) {
 	out << x.toString();
 	return out;
 }
 
 ////FOR COMPARING
 
-bool Lnum::operator==(const Lnum& x) const {
+inline bool Lnum::operator==(const Lnum& x) const {
 	return sign == x.getSign() && digit == x.getDigits();
 }
 
-bool Lnum::operator!=(const Lnum& x) const {
+inline bool Lnum::operator!=(const Lnum& x) const {
 	return !(*this == x);
 }
 
-bool Lnum::operator<(const Lnum& x) const {
+inline bool Lnum::operator<(const Lnum& x) const {
 	if(sign != x.getSign()) {
 		return sign < x.getSign();
 	}
@@ -189,7 +192,7 @@ bool Lnum::operator<(const Lnum& x) const {
 			condition = length() < x.length();
 		}
 		else {
-			vector<int> v1 = digit, v2 = x.getDigits();
+			std::vector<int> v1 = digit, v2 = x.getDigits();
 			reverse(v1.begin(), v1.end());
 			reverse(v2.begin(), v2.end());
 			condition = v1 < v2;
@@ -199,27 +202,27 @@ bool Lnum::operator<(const Lnum& x) const {
 	}
 }
 
-bool Lnum::operator<=(const Lnum& x) const {
+inline bool Lnum::operator<=(const Lnum& x) const {
 	return *this < x || *this == x;
 }
 
-bool Lnum::operator>(const Lnum& x) const {
+inline bool Lnum::operator>(const Lnum& x) const {
 	return !(*this <= x);
 }
 
-bool Lnum::operator>=(const Lnum& x) const {
+inline bool Lnum::operator>=(const Lnum& x) const {
 	return !(*this < x);
 }
 
 ////ARITHMETIC
 
-Lnum Lnum::operator-() const {
+inline Lnum Lnum::operator-() const {
 	return Lnum(digit, -sign);
 }
 
-Lnum Lnum::operator+(const Lnum& x) const {
+inline Lnum Lnum::operator+(const Lnum& x) const {
 	if(sign == x.getSign()) {
-		vector<int> c(max(x.length(), length()) + 1, 0);
+		std::vector<int> c(std::max(x.length(), length()) + 1, 0);
 		for(int i = 0, carry = 0; i < int(c.size()); i++) {
 			carry += getDigit(i) + x.getDigit(i);
 			c[i] = carry % base;
@@ -237,7 +240,7 @@ Lnum Lnum::operator+(const Lnum& x) const {
 	}
 }
 
-Lnum Lnum::operator-(const Lnum& x) const {
+inline Lnum Lnum::operator-(const Lnum& x) const {
 	if(sign != x.getSign()) {
 		return *this + (-x);
 	}
@@ -250,7 +253,7 @@ Lnum Lnum::operator-(const Lnum& x) const {
 				return -(x - *this);
 			}
 			else {
-				vector<int> c(digit.size(), 0);
+				std::vector<int> c(digit.size(), 0);
 				for(int i = 0; i < int(c.size()); i++) {
 					c[i] += getDigit(i) - x.getDigit(i);
 					if(c[i] < 0) {
@@ -265,8 +268,8 @@ Lnum Lnum::operator-(const Lnum& x) const {
 }
 
 
-Lnum Lnum::operator*(const Lnum& x) const {
-	vector<int> c(length() + x.length() + 10, 0);
+inline Lnum Lnum::operator*(const Lnum& x) const {
+	std::vector<int> c(length() + x.length() + 10, 0);
 	for(int i = 0, carry = 0; i < int(digit.size()); i++) {
 		for(int j = 0; i + j < int(c.size()) || carry > 0; j++) {
 			long long cur = c[i + j] + getDigit(i) * 1ll * x.getDigit(j) + carry;
@@ -277,18 +280,18 @@ Lnum Lnum::operator*(const Lnum& x) const {
 	return Lnum(c, sign * x.getSign());
 }
 
-Lnum Lnum::operator/(const Lnum& x) const {
+inline Lnum Lnum::operator/(const Lnum& x) const {
 	return divmod(x).first;
 }
-Lnum Lnum::operator%(const Lnum& x) const {
+inline Lnum Lnum::operator%(const Lnum& x) const {
 	return divmod(x).second;
 }
 
-pair<Lnum, Lnum> Lnum::divmod(const Lnum& x) const {
-	vector<int> a = digit;
+inline std::pair<Lnum, Lnum> Lnum::divmod(const Lnum& x) const {
+	std::vector<int> a = digit;
 	reverse(a.begin(), a.end());
 	Lnum y(x.getDigits(), 1);
-	vector<int> c;
+	std::vector<int> c;
 	Lnum carry = 0;
 
 	for(int i = 0; i < a.size(); i++) {
@@ -311,123 +314,123 @@ pair<Lnum, Lnum> Lnum::divmod(const Lnum& x) const {
 
 	reverse(c.begin(), c.end());
 
-	return make_pair(Lnum(c, sign * x.getSign()), carry * (sign * x.getSign()));
+	return std::make_pair(Lnum(c, sign * x.getSign()), carry * (sign * x.getSign()));
 }
 
-Lnum Lnum::operator+=(const Lnum& x) {
+inline Lnum Lnum::operator+=(const Lnum& x) {
 	return (*this = *this + x);
 }
 
-Lnum Lnum::operator-=(const Lnum& x) {
+inline Lnum Lnum::operator-=(const Lnum& x) {
 	return (*this = *this - x);
 }
 
-Lnum Lnum::operator*=(const Lnum& x) {
+inline Lnum Lnum::operator*=(const Lnum& x) {
 	return (*this = *this * x);
 }
 
-Lnum Lnum::operator/=(const Lnum& x) {
+inline Lnum Lnum::operator/=(const Lnum& x) {
 	return (*this = *this / x);
 }
 
-Lnum Lnum::operator%=(const Lnum& x) {
+inline Lnum Lnum::operator%=(const Lnum& x) {
 	return (*this = *this % x);
 }
 
 
 ////CLONES FOR INT
 
-Lnum& Lnum::operator=(const long long &x){
+inline Lnum& Lnum::operator=(const long long &x){
 	return (*this = Lnum(x));
 }
 
 
-bool Lnum::operator==(const long long& x) const {
+inline bool Lnum::operator==(const long long& x) const {
 	return *this == Lnum(x);
 }
 
-bool Lnum::operator!=(const long long& x) const {
+inline bool Lnum::operator!=(const long long& x) const {
 	return *this != Lnum(x);
 }
 
-bool Lnum::operator<(const long long& x) const {
+inline bool Lnum::operator<(const long long& x) const {
 	return *this < Lnum(x);
 }
 
-bool Lnum::operator<=(const long long& x) const {
+inline bool Lnum::operator<=(const long long& x) const {
 	return *this <= Lnum(x);
 }
 
-bool Lnum::operator>(const long long& x) const {
+inline bool Lnum::operator>(const long long& x) const {
 	return *this > Lnum(x);
 }
 
-bool Lnum::operator>=(const long long& x) const {
+inline bool Lnum::operator>=(const long long& x) const {
 	return *this >= Lnum(x);
 }
 
 
-Lnum Lnum::operator+(const long long& x) const {
+inline Lnum Lnum::operator+(const long long& x) const {
 	return *this + Lnum(x);
 }
 
-Lnum Lnum::operator-(const long long& x) const {
+inline Lnum Lnum::operator-(const long long& x) const {
 	return *this - Lnum(x);
 }
 
-Lnum Lnum::operator*(const long long& x) const {
+inline Lnum Lnum::operator*(const long long& x) const {
 	return *this * Lnum(x);
 }
 
-Lnum Lnum::operator/(const long long& x) const {
+inline Lnum Lnum::operator/(const long long& x) const {
 	return *this / Lnum(x);
 }
 
-Lnum Lnum::operator%(const long long& x) const {
+inline Lnum Lnum::operator%(const long long& x) const {
 	return *this % Lnum(x);
 }
 
 
-Lnum Lnum::operator+=(const long long& x) {
+inline Lnum Lnum::operator+=(const long long& x) {
 	return (*this = *this + x);
 }
 
-Lnum Lnum::operator-=(const long long& x) {
+inline Lnum Lnum::operator-=(const long long& x) {
 	return (*this = *this - x);
 }
 
-Lnum Lnum::operator*=(const long long& x) {
+inline Lnum Lnum::operator*=(const long long& x) {
 	return (*this = *this * x);
 }
 
-Lnum Lnum::operator/=(const long long& x) {
+inline Lnum Lnum::operator/=(const long long& x) {
 	return (*this = *this / x);
 }
 
-Lnum Lnum::operator%=(const long long& x) {
+inline Lnum Lnum::operator%=(const long long& x) {
 	return (*this = *this % x);
 }
 
 //OTHERS
 
-int Lnum::getDigit(int pos) const {
+inline int Lnum::getDigit(int pos) const {
 	return 0 <= pos && pos < int(digit.size()) ? digit[pos] : 0;
 }
 
-int Lnum::length() const {
+inline int Lnum::length() const {
 	return digit.size() == 1 && digit[0] == 0 ? 1 :
 		digit.size() + (sign == -1);
 }
 
-int Lnum::getSign() const {
+inline int Lnum::getSign() const {
 	return sign;
 }
 
-vector<int> Lnum::getDigits() const {
+inline std::vector<int> Lnum::getDigits() const {
 	return digit;
 }
 
-void Lnum::normalize() {
+inline void Lnum::normalize() {
 	while(digit.size() > 1 && digit.back() == 0) {
 		digit.pop_back();
 	}
@@ -440,25 +443,25 @@ void Lnum::normalize() {
 	}
 }
 
-string Lnum::toString() const {
-    if(*this == 0) {
+inline std::string Lnum::toString() const {
+	if(*this == 0) {
 		return "0";
 	}
 	else {
-        string result = "";
+		std::string result = "";
 		if(this->getSign() == -1) {
 			result += "-";
 		}
-		vector<int> digits = this->getDigits();
+		std::vector<int> digits = this->getDigits();
 		result += char(digits.back() + '0');
 		digits.pop_back();
 		reverse(digits.begin(), digits.end());
 
 		struct Helper {
-			string addLeadingZeroes(int x) {
-				stringstream stream;
+			std::string addLeadingZeroes(int x) {
+				std::stringstream stream;
 				stream << x;
-				string s = stream.str();
+				std::string s = stream.str();
 				while(int(s.size()) < 9) {
 					s = "0" + s;
 				}
@@ -474,7 +477,7 @@ string Lnum::toString() const {
 	}
 }
 
-Lnum lPow(Lnum a, long long b) {
+inline Lnum lPow(Lnum a, long long b) {
 	Lnum res = 1;
 	while(b > 0) {
 		if(b % 2) res *= a;
@@ -484,9 +487,8 @@ Lnum lPow(Lnum a, long long b) {
 	return res;
 }
 
-Lnum lPow(long long a, long long b) {
+inline Lnum lPow(long long a, long long b) {
 	return lPow(Lnum(a), b);
 }
 
-
-}
+} // namespace lnum
