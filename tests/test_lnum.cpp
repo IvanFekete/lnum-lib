@@ -6,6 +6,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 using lnum::Lnum;
@@ -125,6 +127,26 @@ TEST_CASE("LLONG_MIN construction does not trigger UB") {
 	CHECK(Lnum(LLONG_MIN) < Lnum(0LL));
 	CHECK((Lnum(LLONG_MIN) - Lnum(LLONG_MIN)) == Lnum(0LL));
 	CHECK((Lnum(LLONG_MIN) + Lnum(1LL)).toString() == "-9223372036854775807");
+}
+
+TEST_CASE("move semantics") {
+	static_assert(std::is_move_constructible<Lnum>::value, "Lnum should be move constructible");
+	static_assert(std::is_move_assignable<Lnum>::value, "Lnum should be move assignable");
+	static_assert(std::is_nothrow_move_constructible<Lnum>::value, "Lnum's move constructor should be noexcept");
+	static_assert(std::is_nothrow_move_assignable<Lnum>::value, "Lnum's move assignment should be noexcept");
+
+	const Lnum expected("123456789123456789123456789123456789");
+
+	Lnum a("123456789123456789123456789123456789");
+	Lnum b(std::move(a));
+	CHECK(b == expected);
+
+	Lnum c(1LL);
+	c = Lnum("987654321987654321987654321987654321");
+	CHECK(c.toString() == "987654321987654321987654321987654321");
+
+	Lnum d(std::move(b)); // move-construct again from a still-valid moved-to object
+	CHECK(d == expected);
 }
 
 TEST_CASE("division by zero throws") {

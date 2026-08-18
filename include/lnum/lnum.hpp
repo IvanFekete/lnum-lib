@@ -25,8 +25,10 @@ public:
 	Lnum(std::string);
 	Lnum(std::vector<int>, int);
 	Lnum(const Lnum&);
+	Lnum(Lnum&&) noexcept;
 
 	Lnum& operator=(const Lnum&);
+	Lnum& operator=(Lnum&&) noexcept;
 
 	bool operator==(const Lnum&) const;
 	bool operator!=(const Lnum&) const;
@@ -166,12 +168,25 @@ inline Lnum::Lnum(const Lnum& x) : digit(x.getDigits()), sign(x.getSign()) {
 	normalize();
 }
 
+inline Lnum::Lnum(Lnum&& x) noexcept = default;
+
 
 //OPERATORS
 
 inline Lnum& Lnum::operator=(const Lnum& x){
 	digit = x.getDigits();
 	sign = x.getSign();
+	return *this;
+}
+
+// Can't be `= default`: base is const, and a class with a const data member
+// has its defaulted move-assignment operator implicitly deleted (assignment
+// would require reassigning `base`, which is impossible). Write it by hand
+// and simply leave `base` untouched, same as the copy-assignment operator
+// above.
+inline Lnum& Lnum::operator=(Lnum&& x) noexcept {
+	digit = std::move(x.digit);
+	sign = x.sign;
 	return *this;
 }
 
