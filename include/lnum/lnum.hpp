@@ -89,18 +89,23 @@ inline Lnum::Lnum() :
 	sign(1), digit(std::vector<int>(1, 0)) {}
 
 inline Lnum::Lnum(long long x) {
+	unsigned long long ux;
 	if(x < 0) {
 		sign = -1;
-		x *= -1;
+		// Negating LLONG_MIN as a signed long long is UB (its magnitude
+		// doesn't fit in long long). Reinterpret as unsigned first, where
+		// negation wraps around and yields the correct magnitude.
+		ux = -static_cast<unsigned long long>(x);
 	}
 	else {
 		sign = 1;
+		ux = static_cast<unsigned long long>(x);
 	}
 
 	digit.clear();
-	while(x > 0) {
-		digit.push_back(x % base);
-		x /= base;
+	while(ux > 0) {
+		digit.push_back(static_cast<int>(ux % base));
+		ux /= base;
 	}
 	if(digit.empty()) {
 		digit.push_back(0);
@@ -108,30 +113,41 @@ inline Lnum::Lnum(long long x) {
 }
 
 inline Lnum::Lnum(std::string s) {
-	digit.clear();
+	// Only accept a strict integer literal: an optional sign followed by one
+	// or more ASCII digits. Anything else (letters, whitespace, stray signs,
+	// embedded punctuation) is rejected rather than silently mis-parsed.
+	if(s.empty()) {
+		throw std::invalid_argument("lnum::Lnum: \"" + s + "\" is not a valid integer literal");
+	}
+
+	std::size_t firstDigit = 0;
 	sign = 1;
-	reverse(s.begin(), s.end());
-	int cnt = 0, x = 0, pw = 1;
-	for(auto c : s) {
-		if(isdigit(c)) {
-			cnt++;
-			x += pw * int(c - '0');
-			pw *= 10;
-			if(cnt == 9) {
-				digit.push_back(x);
-				cnt = 0;
-				x = 0;
-				pw = 1;
-			}
+	if(s[0] == '-' || s[0] == '+') {
+		sign = (s[0] == '-') ? -1 : 1;
+		firstDigit = 1;
+	}
+	if(firstDigit == s.size()) {
+		throw std::invalid_argument("lnum::Lnum: \"" + s + "\" is not a valid integer literal");
+	}
+	for(std::size_t i = firstDigit; i < s.size(); i++) {
+		if(!isdigit(static_cast<unsigned char>(s[i]))) {
+			throw std::invalid_argument("lnum::Lnum: \"" + s + "\" is not a valid integer literal");
 		}
-		else {
-			if(x != 0) {
-				digit.push_back(x);
-				x = 0;
-			}
-			if(c == '-') {
-				sign *= -1;
-			}
+	}
+
+	digit.clear();
+	std::string magnitude = s.substr(firstDigit);
+	reverse(magnitude.begin(), magnitude.end());
+	int cnt = 0, x = 0, pw = 1;
+	for(auto c : magnitude) {
+		cnt++;
+		x += pw * int(c - '0');
+		pw *= 10;
+		if(cnt == 9) {
+			digit.push_back(x);
+			cnt = 0;
+			x = 0;
+			pw = 1;
 		}
 	}
 	if(x != 0) {

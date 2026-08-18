@@ -2,6 +2,7 @@
 #include <doctest/doctest.h>
 
 #include <lnum/lnum.hpp>
+#include <climits>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -22,6 +23,22 @@ TEST_CASE("construction and toString round-trip") {
 	CHECK(Lnum("000123").toString() == "123");
 	CHECK(Lnum("-0").toString() == "0");
 	CHECK(Lnum("-0").getSign() == 1);
+	CHECK(Lnum("+5").toString() == "5"); // leading '+' is accepted like leading '-'
+}
+
+TEST_CASE("string construction rejects malformed input") {
+	CHECK_THROWS_AS(Lnum(""), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum("-"), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum("+"), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum("--5"), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum("+-5"), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum("5-"), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum("12a34"), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum("12 34"), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum(" 123"), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum("123 "), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum("1,234"), std::invalid_argument);
+	CHECK_THROWS_AS(Lnum("1.5"), std::invalid_argument);
 }
 
 TEST_CASE("comparisons") {
@@ -97,6 +114,17 @@ TEST_CASE("division and modulo: truncate toward zero, matching built-in / and %"
 			CHECK(qr.second == Lnum(a % b));
 		}
 	}
+}
+
+TEST_CASE("LLONG_MIN construction does not trigger UB") {
+	// -LLONG_MIN doesn't fit in long long, so naive negation overflows;
+	// the constructor must negate via unsigned arithmetic instead.
+	CHECK(Lnum(LLONG_MIN).toString() == "-9223372036854775808");
+	CHECK(Lnum(LLONG_MIN).getSign() == -1);
+	CHECK((-Lnum(LLONG_MIN)).toString() == "9223372036854775808");
+	CHECK(Lnum(LLONG_MIN) < Lnum(0LL));
+	CHECK((Lnum(LLONG_MIN) - Lnum(LLONG_MIN)) == Lnum(0LL));
+	CHECK((Lnum(LLONG_MIN) + Lnum(1LL)).toString() == "-9223372036854775807");
 }
 
 TEST_CASE("division by zero throws") {
