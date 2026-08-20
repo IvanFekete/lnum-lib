@@ -2,8 +2,8 @@ include(FetchContent)
 FetchContent_Declare(
     doctest
     GIT_REPOSITORY https://github.com/doctest/doctest.git
-    GIT_TAG v2.4.11)
-# doctest v2.4.11's own CMakeLists.txt declares cmake_minimum_required(2.8.11),
+    GIT_TAG v2.5.3)
+# doctest's own CMakeLists.txt declares an old cmake_minimum_required(),
 # which CMake >= 4 refuses to configure at all; raise the floor just for this
 # fetched dependency rather than for our own project.
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)

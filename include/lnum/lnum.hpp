@@ -112,8 +112,10 @@ inline Lnum::Lnum(long long x) {
 		sign = -1;
 		// Negating LLONG_MIN as a signed long long is UB (its magnitude
 		// doesn't fit in long long). Reinterpret as unsigned first, where
-		// negation wraps around and yields the correct magnitude.
-		ux = -static_cast<unsigned long long>(x);
+		// subtracting from 0 wraps around and yields the correct magnitude
+		// (written as 0 - x rather than -x since MSVC's C4146 flags unary
+		// minus on an unsigned operand even though it's well-defined).
+		ux = 0ULL - static_cast<unsigned long long>(x);
 	}
 	else {
 		sign = 1;
@@ -321,8 +323,10 @@ inline Lnum Lnum::operator*(const Lnum& x) const {
 	for(int i = 0, carry = 0; i < int(digit.size()); i++) {
 		for(int j = 0; i + j < int(c.size()) || carry > 0; j++) {
 			long long cur = c[i + j] + getDigit(i) * 1ll * x.getDigit(j) + carry;
-			carry = cur / base;
-			c[i + j] = cur % base;
+			// cur < base^2 + base, so both results comfortably fit in int;
+			// explicit casts silence MSVC's implicit-narrowing warning.
+			carry = static_cast<int>(cur / base);
+			c[i + j] = static_cast<int>(cur % base);
 		}
 	}
 	return Lnum(c, sign * x.getSign());
@@ -452,7 +456,7 @@ inline int Lnum::getDigit(int pos) const {
 
 inline int Lnum::length() const {
 	return digit.size() == 1 && digit[0] == 0 ? 1 :
-		digit.size() + (sign == -1);
+		static_cast<int>(digit.size()) + (sign == -1);
 }
 
 inline int Lnum::getSign() const {
