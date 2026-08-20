@@ -77,7 +77,7 @@ public:
 	int getDigit(int) const;
 	int length() const;
 	int getSign() const;
-	std::vector<int> getDigits() const;
+	const std::vector<int>& getDigits() const;
 	std::string toString() const;
 };
 
@@ -522,7 +522,7 @@ inline int Lnum::getSign() const {
 	return sign;
 }
 
-inline std::vector<int> Lnum::getDigits() const {
+inline const std::vector<int>& Lnum::getDigits() const {
 	return digit;
 }
 
