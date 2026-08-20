@@ -50,28 +50,6 @@ public:
 	Lnum& operator/=(const Lnum&);
 	Lnum& operator%=(const Lnum&);
 
-
-	Lnum& operator=(const long long&);
-
-	bool operator==(const long long&) const;
-	bool operator!=(const long long&) const;
-	bool operator<(const long long&) const;
-	bool operator<=(const long long&) const;
-	bool operator>(const long long&) const;
-	bool operator>=(const long long&) const;
-
-	Lnum operator+(const long long&) const;
-	Lnum operator-(const long long&) const;
-	Lnum operator*(const long long&) const;
-	Lnum operator/(const long long&) const;
-	Lnum operator%(const long long&) const;
-
-	Lnum& operator+=(const long long&);
-	Lnum& operator-=(const long long&);
-	Lnum& operator*=(const long long&);
-	Lnum& operator/=(const long long&);
-	Lnum& operator%=(const long long&);
-
 	std::pair<Lnum, Lnum> divmod(const Lnum&) const;
 
 	int getDigit(int) const;
@@ -372,87 +350,15 @@ inline Lnum& Lnum::operator%=(const Lnum& x) {
 }
 
 
-////CLONES FOR INT
-
-inline Lnum& Lnum::operator=(const long long &x){
-	return (*this = Lnum(x));
-}
-
-
-inline bool Lnum::operator==(const long long& x) const {
-	return *this == Lnum(x);
-}
-
-inline bool Lnum::operator!=(const long long& x) const {
-	return *this != Lnum(x);
-}
-
-inline bool Lnum::operator<(const long long& x) const {
-	return *this < Lnum(x);
-}
-
-inline bool Lnum::operator<=(const long long& x) const {
-	return *this <= Lnum(x);
-}
-
-inline bool Lnum::operator>(const long long& x) const {
-	return *this > Lnum(x);
-}
-
-inline bool Lnum::operator>=(const long long& x) const {
-	return *this >= Lnum(x);
-}
-
-
-inline Lnum Lnum::operator+(const long long& x) const {
-	return *this + Lnum(x);
-}
-
-inline Lnum Lnum::operator-(const long long& x) const {
-	return *this - Lnum(x);
-}
-
-inline Lnum Lnum::operator*(const long long& x) const {
-	return *this * Lnum(x);
-}
-
-inline Lnum Lnum::operator/(const long long& x) const {
-	return *this / Lnum(x);
-}
-
-inline Lnum Lnum::operator%(const long long& x) const {
-	return *this % Lnum(x);
-}
-
-
-inline Lnum& Lnum::operator+=(const long long& x) {
-	return (*this = *this + x);
-}
-
-inline Lnum& Lnum::operator-=(const long long& x) {
-	return (*this = *this - x);
-}
-
-inline Lnum& Lnum::operator*=(const long long& x) {
-	return (*this = *this * x);
-}
-
-inline Lnum& Lnum::operator/=(const long long& x) {
-	return (*this = *this / x);
-}
-
-inline Lnum& Lnum::operator%=(const long long& x) {
-	return (*this = *this % x);
-}
-
-
 ////LONG LONG ON THE LEFT-HAND SIDE
 //
-// `someLnum OP 5LL` resolves to the member functions above (the implicit
-// conversion applies to the argument). `5LL OP someLnum` can't go through a
-// member function at all: overload resolution never applies a user-defined
-// conversion to the implicit object argument, so without these free
-// functions `long long` is only ever usable on the right-hand side.
+// `someLnum OP 5LL` already works without a dedicated overload: `Lnum` has
+// an implicit `Lnum(long long)` constructor, so `5LL` converts to a `Lnum`
+// argument and the member operators above take it from there. `5LL OP
+// someLnum` can't go through a member function at all: overload resolution
+// never applies a user-defined conversion to the implicit object argument,
+// so without these free functions `long long` is only ever usable on the
+// right-hand side.
 
 inline bool operator==(const long long& x, const Lnum& y) {
 	return y == x;
