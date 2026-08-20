@@ -15,7 +15,7 @@
 namespace lnum {
 
 class Lnum {
-	const int base = 1e9;
+	static constexpr int base = 1000000000;
 	std::vector<int> digit;
 	int sign;
 	void normalize();
@@ -179,16 +179,7 @@ inline Lnum& Lnum::operator=(const Lnum& x){
 	return *this;
 }
 
-// Can't be `= default`: base is const, and a class with a const data member
-// has its defaulted move-assignment operator implicitly deleted (assignment
-// would require reassigning `base`, which is impossible). Write it by hand
-// and simply leave `base` untouched, same as the copy-assignment operator
-// above.
-inline Lnum& Lnum::operator=(Lnum&& x) noexcept {
-	digit = std::move(x.digit);
-	sign = x.sign;
-	return *this;
-}
+inline Lnum& Lnum::operator=(Lnum&&) noexcept = default;
 
 //// IN|OUT
 
