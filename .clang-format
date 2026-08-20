@@ -1,0 +1,17 @@
+---
+# Approximates this codebase's existing hand-formatted style (tabs,
+# attached braces, no space before parens). Not yet enforced in CI —
+# run `clang-format -i` locally before relying on it as a hard gate.
+BasedOnStyle: Google
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+ColumnLimit: 100
+SpaceBeforeParens: Never
+BreakBeforeBraces: Attach
+PointerAlignment: Left
+AccessModifierOffset: -4
+NamespaceIndentation: None
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+SortIncludes: false

@@ -1,0 +1,16 @@
+---
+# Focused on correctness/portability, not style: naming and cppcoreguidelines
+# checks would flag this codebase's existing conventions wholesale rather
+# than surfacing actionable bugs.
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  performance-*,
+  portability-*,
+  modernize-use-nullptr,
+  modernize-use-override,
+  readability-container-size-empty,
+  readability-redundant-*
+WarningsAsErrors: ''
+HeaderFilterRegex: 'include/lnum/.*'
