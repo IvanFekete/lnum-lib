@@ -21,7 +21,7 @@ the standard library, so dropping it into your own include path works.
 
 ```cmake
 include(FetchContent)
-FetchContent_Declare(lnum-lib GIT_REPOSITORY <this-repo-url> GIT_TAG main)
+FetchContent_Declare(lnum-lib GIT_REPOSITORY <this-repo-url> GIT_TAG master)
 FetchContent_MakeAvailable(lnum-lib)
 
 target_link_libraries(your_target PRIVATE lnum::lnum-lib)

@@ -14,15 +14,34 @@
 
 namespace lnum {
 
+/**
+ * Arbitrary-precision signed integer. Internally stored as a sign (+1/-1,
+ * zero is always +1) and a little-endian vector of base-1e9 limbs.
+ * Division and modulo truncate toward zero, matching the built-in `/` and
+ * `%` operators (not floor division).
+ */
 class Lnum {
 	static constexpr int base = 1000000000;
 	std::vector<int> digit;
 	int sign;
 	void normalize();
 public:
+	/** Constructs zero. */
 	Lnum();
+	/** Constructs from a `long long`, including `LLONG_MIN`. */
 	Lnum(long long);
+	/**
+	 * Parses a strict decimal integer literal: an optional leading `+`/`-`
+	 * followed by one or more ASCII digits, nothing else (no whitespace,
+	 * no embedded punctuation, no empty string).
+	 * @throws std::invalid_argument if `s` is not such a literal.
+	 */
 	Lnum(std::string);
+	/**
+	 * Constructs directly from base-1e9 limbs (least-significant first)
+	 * and an explicit sign (+1/-1). Trailing zero limbs are dropped and
+	 * the sign is normalized to +1 if the resulting value is zero.
+	 */
 	Lnum(std::vector<int>, int);
 	Lnum(const Lnum&);
 	Lnum(Lnum&&) noexcept;
@@ -41,7 +60,9 @@ public:
 	Lnum operator-(const Lnum&) const;
 	Lnum operator-() const;
 	Lnum operator*(const Lnum&) const;
+	/** Truncates toward zero, matching built-in `/`. @throws std::invalid_argument on division by zero. */
 	Lnum operator/(const Lnum&) const;
+	/** Truncates toward zero, matching built-in `%`. @throws std::invalid_argument on division by zero. */
 	Lnum operator%(const Lnum&) const;
 
 	Lnum& operator+=(const Lnum&);
@@ -50,16 +71,33 @@ public:
 	Lnum& operator/=(const Lnum&);
 	Lnum& operator%=(const Lnum&);
 
+	/**
+	 * Combined division and modulo in one pass (cheaper than calling `/`
+	 * and `%` separately, since both otherwise recompute the same
+	 * quotient). Truncates toward zero. @returns {quotient, remainder}.
+	 * @throws std::invalid_argument if the divisor is zero.
+	 */
 	std::pair<Lnum, Lnum> divmod(const Lnum&) const;
 
+	/** Base-1e9 limb at `pos` (0 = least significant), or 0 if out of range. */
 	int getDigit(int) const;
+	/**
+	 * Number of base-1e9 limbs, plus one if the value is negative. This is
+	 * an internal sizing/comparison helper, not a digit or character
+	 * count — for display width use `toString().size()` instead.
+	 */
 	int length() const;
+	/** +1 or -1. Zero is always represented with sign +1. */
 	int getSign() const;
+	/** Base-1e9 limbs, least-significant first. */
 	const std::vector<int>& getDigits() const;
+	/** Decimal string representation, e.g. "-42" or "0". */
 	std::string toString() const;
 };
 
+/** `a` raised to the `b`th power via binary exponentiation. `b` must be >= 0; b <= 0 returns 1. */
 Lnum lPow(Lnum a, long long b);
+/** @overload */
 Lnum lPow(long long a, long long b);
 
 
@@ -161,6 +199,7 @@ inline Lnum& Lnum::operator=(Lnum&&) noexcept = default;
 
 //// IN|OUT
 
+/** Reads a whitespace-delimited token and parses it as in `Lnum(std::string)`; same throw behavior on a malformed token. */
 inline std::istream& operator>>(std::istream& in, Lnum& x) {
 	std::string s;
 	in >> s;
@@ -168,6 +207,7 @@ inline std::istream& operator>>(std::istream& in, Lnum& x) {
 	return in;
 }
 
+/** Writes `x.toString()`. */
 inline std::ostream& operator<<(std::ostream& out, const Lnum& x) {
 	out << x.toString();
 	return out;
