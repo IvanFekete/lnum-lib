@@ -105,5 +105,8 @@ jobs:
       - name: clang-tidy
         run: clang-tidy tests/test_lnum.cpp -p build --header-filter='include/lnum/.*'
 
+      - name: Install cppcheck
+        run: sudo apt-get update && sudo apt-get install -y cppcheck
+
       - name: cppcheck
         run: cppcheck --enable=warning,performance,portability --std=c++11 --error-exitcode=1 include/lnum/lnum.hpp
