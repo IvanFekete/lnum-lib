@@ -36,7 +36,7 @@ public:
 	 * no embedded punctuation, no empty string).
 	 * @throws std::invalid_argument if `s` is not such a literal.
 	 */
-	Lnum(std::string);
+	Lnum(const std::string&);
 	/**
 	 * Constructs directly from base-1e9 limbs (least-significant first)
 	 * and an explicit sign (+1/-1). Trailing zero limbs are dropped and
@@ -132,7 +132,7 @@ inline Lnum::Lnum(long long x) {
 	}
 }
 
-inline Lnum::Lnum(std::string s) {
+inline Lnum::Lnum(const std::string& s) {
 	// Only accept a strict integer literal: an optional sign followed by one
 	// or more ASCII digits. Anything else (letters, whitespace, stray signs,
 	// embedded punctuation) is rejected rather than silently mis-parsed.
@@ -177,7 +177,7 @@ inline Lnum::Lnum(std::string s) {
 }
 
 inline Lnum::Lnum(std::vector<int> digit, int sign) :
-		digit(digit), sign(sign) {
+		digit(std::move(digit)), sign(sign) {
 	normalize();
 }
 
